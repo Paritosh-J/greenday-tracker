@@ -14,13 +14,13 @@ const COUNTRY_CODE = process.env.COUNTRY_CODE;
 const CRON_SPEC = process.env.POLL_CRON; // every 3 hours at minute 0
 
 export function startEventChecker() {
-  console.log("ℹ️ Starting event checker cron:", CRON_SPEC);
+  console.log("ℹ️  Starting event checker cron:", CRON_SPEC);
 
   cron.schedule(
     CRON_SPEC,
     async () => {
       console.log(
-        "ℹ️[CRON] Checking Ticketmaster for new events",
+        "ℹ️ [CRON] Checking Ticketmaster for new events",
         new Date().toISOString
       );
       try {
@@ -55,7 +55,7 @@ async function doCheck() {
       eventId: ev.id,
     });
     if (!exists) {
-      console.log("ℹ️ New event found", ev.id, ev.name, ev.date);
+      console.log("ℹ️  New event found", ev.id, ev.name, ev.date);
       newEvents.push(ev);
 
       // create EventLog entry (notifiedAt will be set after notifications below)
