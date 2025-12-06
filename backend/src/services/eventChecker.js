@@ -20,7 +20,7 @@ export function startEventChecker() {
     CRON_SPEC,
     async () => {
       console.log(
-        "ℹ️ [CRON] Checking Ticketmaster for new events",
+        "ℹ️  [CRON] Checking Ticketmaster for new events",
         new Date().toISOString
       );
       try {
@@ -37,6 +37,10 @@ export function startEventChecker() {
 
   // run on startup
   doCheck().catch((e) => console.error("❌ Initial check failed!", e));
+}
+
+export async function manualCheck() {
+  return doCheck();
 }
 
 async function doCheck() {
