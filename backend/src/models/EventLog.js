@@ -12,7 +12,7 @@ const EventLogSchema = new mongoose.Schema({
     default: Date.now,
   },
   notifiedAt: {
-    trpe: Date,
+    type: Date,
     default: Date.now,
   },
   raw: {
