@@ -1,4 +1,4 @@
-# GreenDay Tracker — README.md
+# GreenDay Tracker
 
 > 🎸 Never miss **Green Day in India** again — lightweight plug-and-play tracker that watches official tour announcements and notifies users by email and browser push.
 
