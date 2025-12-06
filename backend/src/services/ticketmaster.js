@@ -25,7 +25,7 @@ export async function fetchEventsByKeywordAndCountry(
       params: {
         keyword: keyword,
         countryCode: countryCode,
-        apiKey: TM_KEY,
+        apikey: TM_KEY,
         sort: "date,asc",
         size: 50,
       },
@@ -57,7 +57,7 @@ export async function fetchEventsByKeywordAndCountry(
   } catch (e) {
     console.error(
       "❌ Ticketmaster fetch error",
-      err?.response?.data ?? err.message
+      e?.response?.data ?? e.message
     );
     throw new Error("Ticketmaster fetch failed");
   }

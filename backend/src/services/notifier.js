@@ -8,7 +8,7 @@ dotenv.config();
 
 const MJ_API_KEY = process.env.MAILJET_API_KEY;
 const MJ_API_SECRET = process.env.MAILJET_API_SECRET;
-const MAIL_FROM = process.env.MAIL_FROM_EMAIL;
+const MAIL_FROM = process.env.MAIL_FROM;
 const MAIL_FROM_NAME = process.env.MAIL_FROM_NAME;
 if (!MJ_API_KEY || !MJ_API_SECRET) {
   console.warn("⚠️ Mailjet keys not set - emails disabled");
@@ -27,7 +27,7 @@ if (MJ_API_KEY && MJ_API_SECRET) {
 
 if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
   webpush.setVapidDetails(
-    `mailto:${MAIL_FROM_EMAIL}`,
+    `mailto:${MAIL_FROM}`,
     VAPID_PUBLIC_KEY,
     VAPID_PRIVATE_KEY
   );
