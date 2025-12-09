@@ -14,6 +14,8 @@ export default async function connectDB() {
   await mongoose.connect(MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 5000,
+    socketTimeoutMS: 45000,
   });
 
   console.log("Connected to MongoDB ✅");
