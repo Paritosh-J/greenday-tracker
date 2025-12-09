@@ -36,7 +36,7 @@ export default function App() {
     e.preventDefault();
     setIsSubscribing(true);
     setStatus("ℹ️ Starting push subscription flow...");
-    
+
     try {
       // Step 1: create/ensure email entry and get VAPID key
       const r1 = await fetch(`${API_BASE}/api/subscriptions/subscribe`, {
@@ -77,50 +77,50 @@ export default function App() {
   }
 
   return (
-    <div style={{ maxWidth: 640, margin: "4rem auto", padding: "1rem" }}>
-      <h1>GreenDay Tour Tracker</h1>
-      <p>
-        Enter your email to get notified when Green Day announces shows in
-        India.
-      </p>
+    <div className="container">
+      <div className="card">
+        <h1 className="title">GreenDay Tour Tracker</h1>
+        <p className="description">
+          Enter your email to get notified when Green Day announces shows in
+          India.
+        </p>
 
-      <form onSubmit={subscribeEmailOnly} style={{ marginTop: "1rem" }}>
-        <label style={{ display: "block", marginBottom: 8 }}>
-          Email address
-        </label>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          placeholder="you@example.com"
-          style={{ width: "100%", padding: "0.6rem", fontSize: "1rem" }}
-        />
+        <form onSubmit={subscribeEmailOnly} className="form">
+          <label className="label">Email address</label>
+          <input
+            className="input"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            placeholder="you@example.com"
+          />
 
-        <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
-          <button type="submit" style={{ padding: "0.6rem 1rem" }}>
-            Subscribe (email)
-          </button>
+          <div className="actions">
+            <button className="btn btn-primary" type="submit">
+              Subscribe (email)
+            </button>
 
-          <button
-            onClick={enablePushAndSubscribe}
-            type="button"
-            disabled={isSubscribing}
-            style={{ padding: "0.6rem 1rem" }}
-          >
-            Enable Push & Subscribe
-          </button>
-        </div>
-      </form>
+            <button
+              className="btn btn-secondary"
+              onClick={enablePushAndSubscribe}
+              type="button"
+              disabled={isSubscribing}
+            >
+              {isSubscribing ? "Subscribing..." : "Enable Push & Subscribe"}
+            </button>
+          </div>
+        </form>
 
-      <div style={{ marginTop: 18, color: "#444" }}>{status}</div>
+        <div className="status">{status}</div>
 
-      <hr style={{ margin: "24px 0" }} />
-      <small>
-        Note: For push notifications you will be asked by the browser for
-        permission. Make sure you allow notifications and that this site is
-        served over HTTPS in production.
-      </small>
+        <hr className="divider" />
+        <small className="note">
+          Note: For push notifications you will be asked by the browser for
+          permission. Make sure you allow notifications and that this site is
+          served over HTTPS in production.
+        </small>
+      </div>
     </div>
   );
 }
