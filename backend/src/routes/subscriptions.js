@@ -8,6 +8,7 @@ const router = express.Router();
 // body: {email?: string, pushSubscription?: object}
 router.post("/subscribe", async (req, res) => {
   try {
+    console.log('🪲[DEBUG] /api/subscription/subscribe body:', req.body);
     const { email, pushSubscription } = req.body;
     if (!email && !pushSubscription) {
       return res.status(400).json({
