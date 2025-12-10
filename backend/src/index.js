@@ -21,7 +21,7 @@ app.get("/__debug/ping", (req, res) => {
 });
 
 // routes
-app.use("api/subscriptions", subscriptionRoutes);
+app.use("/api/subscriptions", subscriptionRoutes);
 
 // --- ADD: Optionally mount a simple test subscribe that always returns 200 (temporary)
 app.post("/__debug/test-subscribe", (req, res) => {
