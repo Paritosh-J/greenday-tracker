@@ -4,45 +4,46 @@ import { getVapidPublicKey } from "../services/notifier.js";
 
 const router = express.Router();
 
-// POST /api/subscription/subscribe
+// POST /api/subscriptions/subscribe
 // body: {email?: string, pushSubscription?: object}
+// accepts either email only, push only, or both.
 router.post("/subscribe", async (req, res) => {
   try {
-    console.log('🪲[DEBUG] /api/subscription/subscribe body:', req.body);
-    const { email, pushSubscription } = req.body;
+    console.log("ℹ️  [INFO] /api/subscriptions/subscribe body:", req.body);
+    const { email, pushSubscription } = req.body || {};
+
     if (!email && !pushSubscription) {
-      return res.status(400).json({
-        error: "email or pushSubscription required",
-      });
+      return res
+        .status(400)
+        .json({ error: "email or pushSubscription required" });
     }
 
-    // if same push subscription exists, update
     let doc;
     if (pushSubscription) {
+      // upsert by push endpoint (prefer push endpoint as unique)
       doc = await Subscription.findOneAndUpdate(
-        {
-          "pushSubscription.endpoint": pushSubscription.endpoint,
-        },
-        { pushSubscription, email },
-        { upsert: true, new: true }
+        { "pushSubscription.endpoint": pushSubscription.endpoint },
+        { pushSubscription, ...(email ? { email } : {}) },
+        { upsert: true, new: true, setDefaultsOnInsert: true }
       );
     } else {
-      // only email
+      // email-only upsert
       doc = await Subscription.findOneAndUpdate(
         { email },
         { email },
-        { upsert: true, new: true }
+        { upsert: true, new: true, setDefaultsOnInsert: true }
       );
     }
 
+    // Always include vapidPublicKey in the response for convenience (frontend uses it)
     return res.json({
       ok: true,
       subscription: doc,
       vapidPublicKey: getVapidPublicKey(),
     });
-  } catch (e) {
-    console.error("❌ subscribe error", e);
-    return res.status(500).json({ error: e.message });
+  } catch (err) {
+    console.error("subscribe error", err);
+    return res.status(500).json({ error: err.message || "Internal error" });
   }
 });
 
