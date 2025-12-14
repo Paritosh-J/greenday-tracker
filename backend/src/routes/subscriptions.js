@@ -1,6 +1,9 @@
 import express from "express";
 import Subscription from "../models/Subscription.js";
-import { getVapidPublicKey } from "../services/notifier.js";
+import {
+  getVapidPublicKey,
+  sendSubscriptionConfirmation,
+} from "../services/notifier.js";
 
 const router = express.Router();
 
@@ -76,6 +79,13 @@ router.post("/subscribe", async (req, res) => {
         { email },
         { upsert: true, new: true, setDefaultsOnInsert: true }
       );
+    }
+
+    // send confirmation email
+    if (email) {
+      sendSubscriptionConfirmation(email).catch((er) => {
+        console.error("❌ Failed to send subscription confirmation", er);
+      });
     }
 
     // Always include vapidPublicKey in the response for convenience (frontend uses it)

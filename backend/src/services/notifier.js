@@ -6,6 +6,7 @@ import Subscription from "../models/Subscription.js";
 // load .env file
 dotenv.config();
 
+const baseUrl = process.env.BACKEND_BASE_URL;
 const MJ_API_KEY = process.env.MAILJET_API_KEY;
 const MJ_API_SECRET = process.env.MAILJET_API_SECRET;
 const MAIL_FROM = process.env.MAIL_FROM;
@@ -73,6 +74,49 @@ export async function sendEmail(toEmail, subject, htmlContent, textContent) {
   }
 }
 
+// send subscription confirmation email
+export async function sendSubscriptionConfirmation(toEmail) {
+  if (!toEmail) return;
+
+  try {
+    const unsubscribeLink = baseUrl
+      ? `${baseUrl}/unsubscribe?email=${encodeURIComponent(toEmail)}`
+      : "";
+
+    const subject = "✅ Subscribed to GreenDay India Tour Alerts";
+
+    const html = `
+      <div style="font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; color:#111;">
+        <h2 style="color:#1b9e6a; margin-bottom: 0.2em;">You're subscribed!</h2>
+        <p>Thanks — you've successfully subscribed for <strong>Green Day</strong> tour alerts for India.</p>
+        <p>We'll email you as soon as an official Green Day show is announced in India.</p>
+        <hr />
+        <p style="font-size:0.9rem; color:#444; margin-top:0.6em;">
+          To unsubscribe, you can:
+          <ul>
+            ${
+              unsubscribeLink
+                ? `<li><a href="${unsubscribeLink}">Click here</a> (opens in your browser)</li>`
+                : ""
+            }
+          </ul>
+        </p>
+        <p style="font-size:0.85rem; color:#666">— GreenDay Tracker</p>
+      </div>
+    `;
+
+    const text = `You're subscribed to Green Day tour alerts for India.\n\nTo unsubscribe open:${
+      unsubscribeLink ? `${unsubscribeLink}` : ""
+    }
+    \n\n— GreenDay Tracker`;
+
+    await sendEmail(toEmail, subject, html, text);
+  } catch (e) {
+    console.error("❌ sendSubscriptionConfirmation error", e);
+    throw e;
+  }
+}
+
 // send push notification
 export async function sendWebPush(subscription, payload) {
   if (!VAPID_PRIVATE_KEY) {
@@ -99,7 +143,6 @@ export async function broadcastNotification(
   const subject = `Green Dat ${event.name} - ${event.venue.city ?? ""}, ${
     event.date
   }`;
-  const baseUrl = process.env.BACKEND_BASE_URL;
   const eventLink = event.url ?? baseUrl;
   const html = `
     <h3>Green Day: ${event.name}</h3>

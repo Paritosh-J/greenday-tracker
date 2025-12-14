@@ -10,6 +10,7 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL;
 export default function App() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState("");
+  const [confirmation, setConfirmation] = useState("");
   const [isSubscribing, setIsSubscribing] = useState(false);
 
   // Simple helper to parse JSON safely and show content on error
@@ -43,6 +44,7 @@ export default function App() {
       if (!res.ok) throw new Error(data.error || "Subscribe failed");
 
       setStatus("✅ Subscribed for email alerts!");
+      setConfirmation("ℹ️ Confirmation sent to " + email);
       console.log("✅ Subscribed for email alerts");
     } catch (err) {
       console.error(err);
@@ -183,6 +185,7 @@ export default function App() {
         </form>
 
         <div className="status">{status}</div>
+        <div className="status">{confirmation}</div>
 
         <hr className="divider" />
         <small className="note">
