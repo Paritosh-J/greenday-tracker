@@ -42,7 +42,8 @@ export default function App() {
       const data = await safeJson(res);
       if (!res.ok) throw new Error(data.error || "Subscribe failed");
 
-      setStatus("✅ Subscribed for email alerts");
+      setStatus("✅ Subscribed for email alerts!");
+      console.log("✅ Subscribed for email alerts");
     } catch (err) {
       console.error(err);
       setStatus("❌ Failed to subscribe: " + (err.message || err));
@@ -130,7 +131,12 @@ export default function App() {
       const j2 = await r2.json();
       if (!r2.ok) throw new Error(j2.error || "Push subscribe save failed");
 
-      setStatus("✅ Subscribed to push & email alerts");
+      email && email.trim() !== ""
+        ? setStatus("✅ Subscribed to push & email alerts!")
+        : setStatus("✅ Subscribed to push notifications!");
+      email && email.trim() !== ""
+        ? console.log("✅ Subscribed to push & email alerts")
+        : console.log("✅ Subscribed to push notifications");
     } catch (err) {
       console.error(err);
       setStatus("❌ Push subscription failed: " + (err.message || err));
