@@ -18,16 +18,59 @@ router.post("/subscribe", async (req, res) => {
         .json({ error: "email or pushSubscription required" });
     }
 
-    let doc;
+    let doc = null;
+
+    // If pushSubscription provided, check both endpoints and emails for existing subscriptions
     if (pushSubscription) {
-      // upsert by push endpoint (prefer push endpoint as unique)
-      doc = await Subscription.findOneAndUpdate(
-        { "pushSubscription.endpoint": pushSubscription.endpoint },
-        { pushSubscription, ...(email ? { email } : {}) },
-        { upsert: true, new: true, setDefaultsOnInsert: true }
-      );
+      const endpoint = pushSubscription.endpoint;
+
+      // Find any existing docs by endpoint and by email (if provided)
+      const [docByEndpoint, docByEmail] = await Promise.all([
+        Subscription.findOne({ "pushSubscription.endpoint": endpoint }),
+        email ? Subscription.findOne({ email }) : null,
+      ]);
+
+      if (docByEndpoint && docByEmail) {
+        // Both exist
+        if (docByEndpoint._id.equals(docByEmail._id)) {
+          // same document: update it
+          docByEndpoint.pushSubscription = pushSubscription;
+
+          if (email) docByEndpoint.email = email;
+          await docByEndpoint.save();
+          doc = docByEndpoint;
+        } else {
+          // Different documents: merge them.
+          // Strategy: keep docByEmail as canonical (to preserve unique email),
+          // attach pushSubscription to it, remove the endpoint-only doc.
+          docByEmail.pushSubscription = pushSubscription;
+          await docByEmail.save();
+          await Subscription.deleteOne({ _id: docByEndpoint._id });
+          doc = await Subscription.findById(docByEmail._id);
+        }
+      } else if (docByEndpoint) {
+        // Endpoint exists, update email if needed
+        if (email && docByEndpoint.email !== email) {
+          // If email exists elsewhere we'd have handled above; safe to update here
+          docByEndpoint.email = email;
+        }
+        docByEndpoint.pushSubscription = pushSubscription;
+        await docByEndpoint.save();
+        doc = docByEndpoint;
+      } else if (docByEmail) {
+        // Email exists but endpoint not present: attach pushSubscription to the email doc
+        docByEmail.pushSubscription = pushSubscription;
+        await docByEmail.save();
+        doc = docByEmail;
+      } else {
+        // Neither exists: create new document (email optional)
+        doc = await Subscription.create({
+          ...(email ? { email } : {}),
+          pushSubscription,
+        });
+      }
     } else {
-      // email-only upsert
+      // pushSubscription not provided => simple email upsert
       doc = await Subscription.findOneAndUpdate(
         { email },
         { email },
@@ -42,6 +85,12 @@ router.post("/subscribe", async (req, res) => {
       vapidPublicKey: getVapidPublicKey(),
     });
   } catch (err) {
+    // If still a duplicate key, surface a clear message
+    if (err?.code === 11000) {
+      return res
+        .status(409)
+        .json({ error: "Duplicate key - conflicting email or endpoint" });
+    }
     console.error("subscribe error", err);
     return res.status(500).json({ error: err.message || "Internal error" });
   }
